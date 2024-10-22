@@ -1,0 +1,4 @@
+/gin_api/tmp
+/gin_api/go.sum
+/vue/node_modules
+/vue/package-lock.json
