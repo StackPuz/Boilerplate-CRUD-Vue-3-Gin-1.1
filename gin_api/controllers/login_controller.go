@@ -101,7 +101,7 @@ func (con *LoginController) Logout(c *gin.Context) {
 
 func (con *LoginController) ResetPassword(c *gin.Context) {
     var user models.UserAccount
-    c.BindJSON(&user)
+    c.ShouldBind(&user)
     if err := config.DB.Where("email = ?", user.Email).First(&user).Error; err != nil {
         c.Status(http.StatusNotFound)
         return
@@ -122,12 +122,14 @@ func (con *LoginController) GetChangePassword(c *gin.Context) {
 }
 
 func (con *LoginController) ChangePassword(c *gin.Context) {
+	var payload map[string]string
+    c.BindJSON(&payload)
     var user models.UserAccount
     if err := config.DB.Where("password_reset_token = ?", c.Params.ByName("token")).First(&user).Error; err != nil {
         c.Status(http.StatusNotFound)
         return
     }
-    password, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+    password, _ := bcrypt.GenerateFromPassword([]byte(payload["password"]), 10)
     config.DB.Model(&user).Updates(map[string]interface{}{"password": string(password), "password_reset_token": nil})
     c.Status(http.StatusOK)
 }
